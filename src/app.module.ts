@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { PostModule } from './post/post.module';
 import { CommentModule } from './comment/comment.module';
+import { User } from './auth/user.entity';
 
 @Module({
   imports: [
@@ -17,7 +18,6 @@ import { CommentModule } from './comment/comment.module';
       url: process.env.MONGODB_URL, // Change to your DB URL
       database: 'blog',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
     }),
     AuthModule,
     PostModule,
