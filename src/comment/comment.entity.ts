@@ -1,18 +1,15 @@
 import { Entity, ObjectIdColumn, ObjectId, Column } from 'typeorm';
 
 @Entity()
-export class Posts {
+export class Comments {
   @ObjectIdColumn()
   id: ObjectId;
 
   @Column()
-  topic: string;
+  comment: string;
 
   @Column()
-  content: string;
-
-  @Column()
-  community: string;
+  postId: string;
 
   @Column()
   createdBy: string;

@@ -15,7 +15,6 @@ export class PostController {
     }
 
     @Get()
-    @UseGuards(Authorize)
     async getAllPost() {
         const post = await this.postService.getAllPosts();
         return post;

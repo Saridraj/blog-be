@@ -1,7 +1,8 @@
-import { Controller, Body, Post } from '@nestjs/common';
+import { Controller, Body, Post, UseGuards, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Auth } from 'typeorm';
 import { User } from './user.entity';
+import { Authorize } from '../authorize.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -17,5 +18,11 @@ export class AuthController {
   async signIn(@Body() userData: User) {
     const data = await this.authService.signIn(userData);
     return data;
+  }
+
+  @Get()
+  async getAllUsers() {
+    const users = await this.authService.getAllUsers();
+    return users;
   }
 }

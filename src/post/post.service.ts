@@ -14,7 +14,7 @@ export class PostService {
       return await this.postRepository.save({
         topic: postData.topic,
         content: postData.content,
-        comunity: postData.comunity,
+        community: postData.community,
         createdBy: postData.createdBy,
         createdAt: new Date(),
       });
@@ -42,7 +42,6 @@ export class PostService {
 
   async getPostsOfUser(userId: string) {
     try {
-      console.log(userId);
       return await this.postRepository.find({
         where: { createdBy: userId },
       });
@@ -59,7 +58,7 @@ export class PostService {
           $set: {
             topic: postData.topic,
             content: postData.content,
-            comunity: postData.comunity,
+            community: postData.community,
           },
         },
       );

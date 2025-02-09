@@ -36,28 +36,33 @@ export class AuthService {
     const userAuthenicated = await this.userRepository.find({
       username: userData.username,
     });
-    const doMatch = await bcrypt.compare(
-      userData.password,
-      userAuthenicated[0].password,
-    );
-    if (doMatch == false) {
+    if (!userAuthenicated) {
       const status = response.status(404);
       const msg = (response.statusMessage =
         'username or password is incorrect.');
       return status;
-    } else if (doMatch == true) {
+    } else if (userAuthenicated) {
       const userAuthenicatedInfo = {
         id: userAuthenicated[0].id,
         username: userAuthenicated[0].username,
         avatarURL: userAuthenicated[0].avatarURL,
-        token: jwt.sign({ id: userAuthenicated[0].id }, process.env.JWT_SECRET, {
-          expiresIn: '30d',
-        }),
+        token: jwt.sign(
+          { id: userAuthenicated[0].id },
+          process.env.JWT_SECRET,
+          {
+            expiresIn: '30d',
+          },
+        ),
       };
       return userAuthenicatedInfo;
     } else {
       const res = response.status(500);
       return res;
     }
+  }
+
+  async getAllUsers() {
+    const userInfo = await this.userRepository.find();
+    return userInfo;
   }
 }
