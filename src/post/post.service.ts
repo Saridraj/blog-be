@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
 import { Posts } from './post.entity';
@@ -6,8 +6,10 @@ import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class PostService {
-  @InjectRepository(Posts)
-  private postRepository: MongoRepository<Posts>;
+  constructor(
+    @InjectRepository(Posts)
+    private readonly postRepository: MongoRepository<Posts>,
+  ) {}
 
   async createPost(postData: Posts) {
     try {
@@ -19,8 +21,10 @@ export class PostService {
         createdAt: new Date(),
       });
     } catch (error) {
-      // Handle the error appropriately
-      return new Error(`Failed to create post: ${error.message}`);
+      throw new HttpException(
+        `Failed to create post: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -28,15 +32,29 @@ export class PostService {
     try {
       return await this.postRepository.find();
     } catch (error) {
-      return new Error(`Failed to fetch posts: ${error.message}`);
+      throw new HttpException(
+        `Failed to fetch posts: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   async getOnePost(postId: string) {
     try {
-      return await this.postRepository.find({ _id: new ObjectId(postId) });
+      const post = await this.postRepository.findOne({
+        where: { _id: new ObjectId(postId) },
+      });
+
+      if (!post) {
+        throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      }
+
+      return post;
     } catch (error) {
-      return new Error(`Failed to fetch post: ${error.message}`);
+      throw new HttpException(
+        `Failed to fetch post: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -46,13 +64,26 @@ export class PostService {
         where: { createdBy: userId },
       });
     } catch (error) {
-      return new Error(`Failed to fetch posts: ${error.message}`);
+      throw new HttpException(
+        `Failed to fetch user posts: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   async updatePost(postId: string, postData: Posts) {
     try {
-      return await this.postRepository.updateOne(
+
+      const existingPost = await this.postRepository.findOne({
+        where: { _id: new ObjectId(postId) },
+      });
+  
+      if (!existingPost) {
+        throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      }
+  
+
+      const updateResult = await this.postRepository.updateOne(
         { _id: new ObjectId(postId) },
         {
           $set: {
@@ -62,16 +93,40 @@ export class PostService {
           },
         },
       );
+  
+      if (updateResult.matchedCount === 0) {
+        throw new HttpException('Failed to update post', HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+  
+
+      return await this.postRepository.findOne({
+        where: { _id: new ObjectId(postId) },
+      });
     } catch (error) {
-      return new Error(`Failed to update post: ${error.message}`);
+      throw new HttpException(
+        `Failed to update post: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
+  
 
   async deletePost(postId: string) {
     try {
-      return await this.postRepository.deleteOne({ _id: new ObjectId(postId) });
+      const deleteResult = await this.postRepository.deleteOne({
+        _id: new ObjectId(postId),
+      });
+
+      if (deleteResult.deletedCount === 0) {
+        throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      }
+
+      return { message: 'Post deleted successfully' };
     } catch (error) {
-      return new Error(`Failed to delete post: ${error.message}`);
+      throw new HttpException(
+        `Failed to delete post: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }
