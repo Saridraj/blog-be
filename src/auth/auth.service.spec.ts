@@ -4,7 +4,8 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
-import { ObjectId, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
+import { ObjectId } from 'mongodb';
 
 describe('AuthService', () => {
   let authService: AuthService;
