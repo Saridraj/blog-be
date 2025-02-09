@@ -1,8 +1,7 @@
 import { Controller, Body, Post, UseGuards, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Auth } from 'typeorm';
 import { User } from './user.entity';
-import { Authorize } from '../authorize.guard';
+
 
 @Controller('auth')
 export class AuthController {

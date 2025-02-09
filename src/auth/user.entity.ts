@@ -9,8 +9,8 @@ export class User {
   username: string;
 
   @Column()
-  password: string;
+  avatarURL: string;
 
   @Column()
-  avatarURL: string;
+  createdAt: Date;
 }
